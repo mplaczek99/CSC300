@@ -1,46 +1,70 @@
 package calculator;
 
 import java.util.List;
+import java.util.Stack;
 
 /**
- * @author <Your Name Here>
+ * @author Michael Placzek
  */
-public class Calculator 
-{
+public class Calculator {
 	public static final String INVALID_MESSAGE = "Invalid Command";
-	
+
 	/**
-	 * Process the calculator command assuming post-fix notation
-	 *    commands - a vector that is assured to be numbers (doubles) or valid operators
-	 *  returns a String that is either the computed number or the INVALID_MESSAGE constant
+	 * Process the calculator command assuming post-fix notation commands - a vector
+	 * that is assured to be numbers (doubles) or valid operators returns a String
+	 * that is either the computed number or the INVALID_MESSAGE constant
 	 */
-	public String processCommand(List<String> commands)
-	{
-	    // Use a stack to process the incoming user command
-	    // The user entry has been broken into a vector of Strings.  Each String is assured to be
-	    //  1.) a number
-	    //  2.) a valid operator from the operators above
-	    // The inputs will NOT BE invalid themselves, but they may not amount to a valid command.
-	    // For instance, 2+2 would be blocked, but 2 + 2 could come through and would be invalid 
-	    // since it is not in post-fix notation.  
-	    //
-	    //  Your task is to process the command into a single numerical response and return that response
-	    //  as a String (no formatting required).  If the command is invalid, return the constant INVALID_MESSAGE
-		return INVALID_MESSAGE;
-	}	
-	
+	public String processCommand(List<String> commands) {
+		Stack<String> stack = new Stack<>();
+
+		// Make a stack for the command
+		for (String command : commands) {
+			if (isDouble(command)) {
+				stack.push(command);
+			} else {
+				try {
+					// gets last two items from the stack
+					double item2 = Double.parseDouble(stack.pop());
+					double item1 = Double.parseDouble(stack.pop());
+					String result;
+
+					// ... does some math
+					if (command.equals(Operator.ADD.label)) {
+						result = Double.toString(item1 + item2);
+					} else if (command.equals(Operator.SUBTRACT.label)) {
+						result = Double.toString(item1 - item2);
+					} else if (command.equals(Operator.MULTIPLY.label)) {
+						result = Double.toString(item1 * item2);
+					} else if (command.equals(Operator.DIVIDE.label)) {
+						result = Double.toString(item1 / item2);
+					} else { // command is ^
+						result = Double.toString(Math.pow(item1, item2));
+					}
+
+					// ... and pushes the result of the math of the items
+					stack.push(result);
+				} catch (Exception e) {
+					return INVALID_MESSAGE;
+				}
+			}
+		}
+
+		if (stack.size() > 1) {
+			return INVALID_MESSAGE;
+		}
+		return stack.peek();
+	}
+
 	/**
-	 * Check if a String value is indeed a double 
-	 *    value - the value to check
-	 *  returns true if the number is a double, false otherwise
+	 * Check if a String value is indeed a double value - the value to check returns
+	 * true if the number is a double, false otherwise
 	 */
-	public boolean isDouble(String value)
-	{
-	    try
-	    {
-	        Double.parseDouble(value);
-	        return true;
-	    } catch (Exception e) {}
-	    return false;
+	public boolean isDouble(String value) {
+		try {
+			Double.parseDouble(value);
+			return true;
+		} catch (Exception ignored) {
+		}
+		return false;
 	}
 }
